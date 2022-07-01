@@ -10,6 +10,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./envoy-proxy/envoy.yaml:/etc/envoy.yaml
+      - ./target/wasm32-unknown-unknown/release/wasmistioplugin.wasm:/etc/wasmistioplugin.wasm
     networks:
       - meshnetwork
     ports:

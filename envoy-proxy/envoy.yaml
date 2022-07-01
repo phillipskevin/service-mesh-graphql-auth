@@ -23,6 +23,19 @@ static_resources:
                         route:
                           cluster: app
               http_filters:
+                - name: envoy.filters.http.wasm
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
+                    config:
+                      name: prime_auth
+                      root_id: prime_auth
+                      vm_config:
+                        vm_id: vm.sentinel.prime_auth
+                        runtime: envoy.wasm.runtime.v8
+                        code:
+                          local:
+                            filename: /etc/wasmistioplugin.wasm
+                        allow_precompiled: true
                 - name: envoy.filters.http.router
 
   clusters:
