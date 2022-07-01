@@ -1,9 +1,25 @@
 version: '3'
 
+networks:
+  meshnetwork: {}
+
 services:
+  proxy:
+    build:
+      context: ./envoy-proxy
+      dockerfile: Dockerfile
+    volumes:
+      - ./envoy-proxy/envoy.yaml:/etc/envoy.yaml
+    networks:
+      - meshnetwork
+    ports:
+      - "18000:80"
+
   app:
     build:
       context: ./node-service
       dockerfile: Dockerfile
+    networks:
+      - meshnetwork
     ports:
       - 3000:3000
