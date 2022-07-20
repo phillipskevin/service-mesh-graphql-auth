@@ -1,34 +1,34 @@
 use log::trace;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
-use primes::is_prime;
 
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_http_context(|context_id, _| -> Box<dyn HttpContext> {
-        Box::new(PrimeAuthorizer { context_id })
+        Box::new(
+            PropertyAuthorizer {
+                context_id,
+                user: None
+            }
+        )
     });
 }
 
-struct PrimeAuthorizer {
+struct PropertyAuthorizer {
     context_id: u32,
+    user: Option<String>,
 }
+impl Context for PropertyAuthorizer {}
 
-impl Context for PrimeAuthorizer {}
-
-impl HttpContext for PrimeAuthorizer {
-    fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
-        for (name, value) in &self.get_http_request_headers() {
-            trace!("In WASM : #{} -> {}: {}", self.context_id, name, value);
-        }
-
-        match self.get_http_request_header("token") {
-            Some(token) if token.parse::<u64>().is_ok() && is_prime(token.parse().unwrap()) => {
-                self.resume_http_request();
+impl HttpContext for PropertyAuthorizer {
+    fn on_http_request_body(&mut self, _: usize, _: bool) -> Action {
+        match &self.user {
+            Some(x) => {
+                trace!("User: {} for context_id {}", x, self.context_id);
                 Action::Continue
             }
-            _ => {
+            None => {
                 self.send_http_response(
                     403,
                     vec![("Powered-By", "proxy-wasm")],
@@ -37,5 +37,15 @@ impl HttpContext for PrimeAuthorizer {
                 Action::Pause
             }
         }
+    }
+
+    fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+        match self.get_http_request_header("user") {
+            Some(user) => {
+                self.user = Some(user);
+            }
+            _ => {}
+        }
+        Action::Continue
     }
 }

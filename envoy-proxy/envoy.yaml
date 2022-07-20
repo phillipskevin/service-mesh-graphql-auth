@@ -51,4 +51,4 @@ static_resources:
               address:
                 socket_address:
                   address: app
-                  port_value: 3000
+                  port_value: 4000
