@@ -27,10 +27,10 @@ static_resources:
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
                     config:
-                      name: prime_auth
-                      root_id: prime_auth
+                      name: graphql_field_auth
+                      root_id: graphql_field_auth
                       vm_config:
-                        vm_id: vm.sentinel.prime_auth
+                        vm_id: vm.sentinel.graphql_field_auth
                         runtime: envoy.wasm.runtime.v8
                         code:
                           local:

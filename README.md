@@ -24,14 +24,15 @@ docker-compose up --build
 Test
 
 ```
-curl -H "token":"323232" http://localhost:18000
-Access forbidden.
+curl -X POST -H "User: Kevin" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:18000
+{ data }
 
-curl -H "token":"32323" http://localhost:18000
-Hello World!
+curl -X POST -H "User: Matt" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:18000
+403
 ```
 
 ## Resources
 
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
 - [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
+- [apollo-rs: spec-compliant GraphQL tools in Rust](https://www.apollographql.com/blog/announcement/tooling/apollo-rs-graphql-tools-in-rust/)
