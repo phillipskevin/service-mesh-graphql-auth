@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./envoy-proxy/envoy.yaml:/etc/envoy.yaml
-      - ./target/wasm32-unknown-unknown/debug/servicemeshgraphqlauth.wasm:/etc/servicemeshgraphqlauth.wasm
+      - ./target/wasm32-unknown-unknown/release/servicemeshgraphqlauth.wasm:/etc/servicemeshgraphqlauth.wasm
     networks:
       - meshnetwork
     ports:
