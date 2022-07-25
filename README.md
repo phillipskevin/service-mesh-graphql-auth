@@ -1,4 +1,6 @@
-# wasm istio/envoy plugin
+# Service Mesh GraphQL Authorization
+
+Example Service Mesh Plugin for Istio/Envoy for handling field-level authorization for GraphQL Services.
 
 ## Usage
 
@@ -24,10 +26,10 @@ docker-compose up --build
 Test
 
 ```
-curl -X POST -H "User: Kevin" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:18000
+curl -X POST -H "User: Kevin" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:4001
 { data }
 
-curl -X POST -H "User: Matt" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:18000
+curl -X POST -H "User: Matt" -H "Content-Type: application/json" -d '{ "query": "query { people { name age email } }" }' http://localhost:4001
 403
 ```
 

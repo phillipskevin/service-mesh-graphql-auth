@@ -10,11 +10,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./envoy-proxy/envoy.yaml:/etc/envoy.yaml
-      - ./target/wasm32-unknown-unknown/debug/wasmistioplugin.wasm:/etc/wasmistioplugin.wasm
+      - ./target/wasm32-unknown-unknown/debug/servicemeshgraphqlauth.wasm:/etc/servicemeshgraphqlauth.wasm
     networks:
       - meshnetwork
     ports:
-      - "18000:80"
+      - 4001:80
 
   app:
     build:

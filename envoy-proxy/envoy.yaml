@@ -34,7 +34,7 @@ static_resources:
                         runtime: envoy.wasm.runtime.v8
                         code:
                           local:
-                            filename: /etc/wasmistioplugin.wasm
+                            filename: /etc/servicemeshgraphqlauth.wasm
                         allow_precompiled: true
                 - name: envoy.filters.http.router
 
