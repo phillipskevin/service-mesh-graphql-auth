@@ -3,6 +3,7 @@ use proxy_wasm::types::*;
 use serde_json;
 use serde::Deserialize;
 use log::debug;
+use crate::graphql_authorizer::GraphqlAuthorizer;
 
 pub mod graphql_authorizer;
 
@@ -18,10 +19,12 @@ pub fn _start() {
     proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> {
         Box::new(
             PropertyAuthorizer {
-                authorized_fields: vec![
-                    "Kevin:name,age,email".to_string(),
-                    "Matt:name".to_string()
-                ],
+                graphql_authorizer: GraphqlAuthorizer {
+                    authorized_fields_config: vec![
+                        "Kevin:name,age,email".to_string(),
+                        "Matt:name".to_string()
+                    ]
+                },
                 user: None
             }
         )
@@ -29,7 +32,7 @@ pub fn _start() {
 }
 
 struct PropertyAuthorizer {
-    authorized_fields: Vec<String>,
+    graphql_authorizer: GraphqlAuthorizer,
     user: Option<String>
 }
 impl Context for PropertyAuthorizer {}
@@ -71,15 +74,10 @@ impl HttpContext for PropertyAuthorizer {
                     Err(e) => panic!("Couldn't parse request body {}", e),
                 };
 
-                let people_fields_read: Vec<String> = graphql_authorizer::get_selections_from_field(&json.query[..], &"people".to_string());
-                let people_fields_authorized: Vec<String> = graphql_authorizer::get_fields_authorized(self.authorized_fields[..].to_vec(), &user[..]);
-
-                let mut disallowed_fields = Vec::new();
-                for field in people_fields_read {
-                    if !people_fields_authorized.contains(&field) {
-                        disallowed_fields.push(field);
-                    }
-                }
+                let disallowed_fields = self.graphql_authorizer.get_unauthorized_fields(
+                    user,
+                    &json.query,
+                );
 
                 if disallowed_fields.len() > 0 {
                     debug!("User {} denied access to {}", user, disallowed_fields.join(","));
