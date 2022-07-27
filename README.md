@@ -4,20 +4,24 @@ Example Service Mesh Plugin for Istio/Envoy for handling field-level authorizati
 
 ## Usage
 
-Install the needed Rust dependencies
+1. Install Rust
+
+https://www.rust-lang.org/tools/install
+
+2. Install the needed Rust dependencies
 
 ```
 rustup toolchain install nightly
 rustup target add wasm32-unknown-unknown
 ```
 
-Build the plugin
+3. Build the plugin
 
 ```
 cargo build --target=wasm32-unknown-unknown --release
 ```
 
-Start the server and proxy with plugin
+4. Start the server and proxy with plugin
 
 ```
 docker-compose up --build
