@@ -27,10 +27,10 @@ static_resources:
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
                     config:
-                      name: graphql_field_auth
-                      root_id: graphql_field_auth
+                      name: graphql_authorizer
+                      root_id: graphql_authorizer
                       vm_config:
-                        vm_id: vm.sentinel.graphql_field_auth
+                        vm_id: vm.sentinel.graphql_authorizer
                         runtime: envoy.wasm.runtime.v8
                         code:
                           local:

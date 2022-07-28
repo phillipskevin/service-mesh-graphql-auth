@@ -18,7 +18,7 @@ pub fn _start() {
 
     proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> {
         Box::new(
-            PropertyAuthorizer {
+            GraphqlAuthorizerPlugin {
                 graphql_authorizer: GraphqlAuthorizer {
                     authorized_fields_config: vec![
                         "Kevin:name,age,email".to_string(),
@@ -31,13 +31,13 @@ pub fn _start() {
     });
 }
 
-struct PropertyAuthorizer {
+struct GraphqlAuthorizerPlugin {
     graphql_authorizer: GraphqlAuthorizer,
     user: Option<String>
 }
-impl Context for PropertyAuthorizer {}
+impl Context for GraphqlAuthorizerPlugin {}
 
-impl HttpContext for PropertyAuthorizer {
+impl HttpContext for GraphqlAuthorizerPlugin {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
         match self.get_http_request_header("user") {
             Some(user) => {
