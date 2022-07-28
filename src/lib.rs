@@ -12,6 +12,7 @@ struct Body {
     query: String,
 }
 
+#[cfg(not(test))]
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
