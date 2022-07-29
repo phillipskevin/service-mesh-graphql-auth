@@ -43,37 +43,45 @@ impl HttpContext for GraphqlAuthorizerPlugin {
             Some(user) => {
                 self.user = Some(user);
             }
-            _ => {}
+            None => {}
         }
         Action::Continue
     }
 
     fn on_http_request_body(&mut self, _: usize, _: bool) -> Action {
+        let body: Vec<u8> = match self.get_http_request_body(0, 1000000) {
+            Some(x) => x,
+            None => {
+                return Action::Continue;
+            }
+        };
+
+        let json: Body = match serde_json::from_slice(&body[..]) {
+            Ok(x) => x,
+            Err(e) => panic!("Couldn't parse request body {}", e),
+        };
+
+        if json.query.contains("query IntrospectionQuery") {
+            return Action::Continue;
+        }
+
         match &self.user {
             None => {
                 debug!("Access denied -- no User header.");
                 self.send_http_response(
-                    403,
-                    vec![("Powered-By", "proxy-wasm")],
-                    Some(b"Access denied.\n"),
+                    401,
+                    vec![
+                        ("powered-by", "graphql_authorizer"),
+                        ("content-type", "application/json; charset=utf-8"),
+                        ("access-control-allow-origin", "*")
+                    ],
+                    Some(
+                        format!("{{ \"errors\": [\"Access denied\"] }}").as_bytes()
+                    ),
                 );
                 Action::Pause
             }
             Some(user) => {
-                let body: Vec<u8> = match self.get_http_request_body(0, 1000000) {
-                    Some(x) => x,
-                    None => Vec::new()
-                };
-
-                if body.len() == 0 {
-                    return Action::Continue;
-                }
-
-                let json: Body = match serde_json::from_slice(&body[..]) {
-                    Ok(x) => x,
-                    Err(e) => panic!("Couldn't parse request body {}", e),
-                };
-
                 let disallowed_fields = self.graphql_authorizer.get_unauthorized_fields(
                     user,
                     &json.query,
@@ -82,9 +90,15 @@ impl HttpContext for GraphqlAuthorizerPlugin {
                 if disallowed_fields.len() > 0 {
                     debug!("User {} denied access to {}", user, disallowed_fields.join(","));
                     self.send_http_response(
-                        403,
-                        vec![("Powered-By", "proxy-wasm")],
-                        Some(b"Access denied.\n"),
+                        401,
+                        vec![
+                            ("powered-by", "graphql_authorizer"),
+                            ("content-type", "application/json; charset=utf-8"),
+                            ("access-control-allow-origin", "*")
+                        ],
+                        Some(
+                            format!("{{ \"errors\": [\"User {} denied access to {}\"] }}", user, disallowed_fields.join(", ")).as_bytes()
+                        ),
                     );
                     return Action::Pause;
                 }
